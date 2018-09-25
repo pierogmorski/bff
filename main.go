@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"text/tabwriter"
 )
 
 // A FileRec wraps os.FileInfo information for a file.  Path and Size are provided as os.FileInfo.Name() provides
@@ -176,16 +177,15 @@ func main() {
 		}
 	}
 
-	// TODO: nicer output
-	fmt.Println()
-	fmt.Println("Big Dirs:")
-	fmt.Println("---------")
-	for _, e := range bigDirs {
-		fmt.Println(e)
-	}
-	fmt.Println("Big Files:")
-	fmt.Println("----------")
+	tabW := &tabwriter.Writer{}
+	tabW.Init(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintln(tabW, "File size (bytes)\tFile path")
 	for _, e := range bigFiles {
-		fmt.Println(e)
+		fmt.Fprintf(tabW, "%v\t%v\n", e.Size, e.Path)
 	}
+	fmt.Fprintln(tabW, "Dir size (bytes)\tDir path")
+	for _, e := range bigDirs {
+		fmt.Fprintf(tabW, "%v\t%v\n", e.Size, e.Path)
+	}
+	tabW.Flush()
 }
